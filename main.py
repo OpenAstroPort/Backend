@@ -1,7 +1,6 @@
 #!/bin/python3
 from flask import Flask
 from flask import request
-import json
 import serial
 from serial.tools import list_ports
 
@@ -10,7 +9,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return json.dumps({'name': 'OATREST', 'version': 'beta-1.0.0'})
+    return {'name': 'OATREST', 'version': 'beta-1.0.0'}
 
 @app.route('/devices', methods=['GET', 'POST'])
 def devices():
