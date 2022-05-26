@@ -40,3 +40,14 @@ def devices():
         except Exception as e:
             logging.error(e)
             return response.getResponse(type="error", description=str(e))
+
+@app.route("/telescope/info")
+def telescopeInfo():
+    response = helpers.ApiResponse()
+    try:
+        infoString = meadeProcessor.sendCommands(":GVP#:GVN#:Gt#:Gg#:GC#:GL#")
+        infoFragments = list(filter(lambda x: x != "", infoString.split("#")))
+        return response.getResponse(type="success", result=infoFragments)
+    except Exception as e:
+        logging.error(e)
+        return response.getResponse(type="error", description=str(e))
