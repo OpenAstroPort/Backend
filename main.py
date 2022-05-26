@@ -1,6 +1,7 @@
 #!/bin/python3
 from flask import Flask
 from flask import request
+import logging
 import serial
 from serial.tools import list_ports
 
@@ -15,6 +16,7 @@ def home():
 def devices():
     # if HTTP Method is GET try to retrieve a list of all available serial ports and return them as json array
     if request.method == 'GET':
+        logging.info("requested available com devices")
         try:
             # Try to get available Serial Ports as List
             availablePorts = list_ports.comports()
