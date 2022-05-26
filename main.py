@@ -77,3 +77,17 @@ def telescopeStatus():
     except Exception as e:
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
+
+@app.route("/telescope/position", methods=['GET', 'POST'])
+def telescopePosition():
+    response = helpers.ApiResponse()
+    try:
+        if request.method == 'GET':
+            # TODO: implement position GET
+            return response.getResponse(type="success", result="Hello World")
+        elif request.method == 'POST':
+            # TODO: implement position POST
+            return response.getResponse(type="success", result="Hello World")
+    except Exception as e:
+        logging.error(e)
+        return response.getResponse(type="error", description=str(e))
