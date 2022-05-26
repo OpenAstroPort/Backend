@@ -51,3 +51,29 @@ def telescopeInfo():
     except Exception as e:
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
+
+@app.route("/telescope/status")
+def telescopeStatus():
+    response = helpers.ApiResponse()
+    try:
+        statusString = meadeProcessor.sendCommands(":GX#")
+        statusFragments = statusString[:-1].split(",")
+        status = statusFragments[0]
+        #stepperRA = statusFragments[2]
+        #stepperDEC = statusFragments[3]
+        #stepperTRAC = statusFragments[4]
+        currentRA = statusFragments[5]
+        currentDEC = statusFragments[6]
+        motionStates = statusFragments[1]
+        slewingStates = ("SlewToTarget", "FreeSlew", "ManualSlew")
+        statusResponse = {
+            "status": status,
+            "isTracking": motionStates[2] == 'T',
+            "isSlewing": status in slewingStates,
+            "rightAscension": currentRA,
+            "declination": currentDEC
+        }
+        return response.getResponse(type="success", result=statusResponse)
+    except Exception as e:
+        logging.error(e)
+        return response.getResponse(type="error", description=str(e))
