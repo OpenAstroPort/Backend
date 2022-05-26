@@ -45,14 +45,14 @@ class MeadeProcessor:
             "baudRate": self.baudRate
         }
 
-    def sendCommand(self, command):
-        if self.comDevice != None and self.baudRate != None:
-            try:
-                with serial.Serial(port=self.comDevice, baudrate=self.baudRate, timeout=1) as ser:
-                    ser.flush()
-                    ser.write(command)
-                    ser.flush()
-                    result = ser.readLine()
-                    return result
-            except:
-                return False
+    def sendCommands(self, commandString):
+        if self.comDevice == None:
+            raise Exception("no comDevice selected")
+        if self.baudRate == None:
+            raise Exception("no baudRate selected")
+        with serial.Serial(port=self.comDevice, baudrate=self.baudRate, timeout=1) as ser:
+            ser.flush()
+            ser.write(commandString.encode('utf-8'))
+            ser.flush()
+            result = ser.readline()
+            return result.decode('utf-8')
