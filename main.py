@@ -197,3 +197,54 @@ def telescopeStopMovement():
     except Exception as e:
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
+
+@app.route("/telescope/action", methods=["POST"])
+def telescopeActions():
+    response = helpers.ApiResponse()
+    statusString = meadeProcessor.sendCommands(":GX#")
+    statusFragments = statusString[:-1].split(",")
+    status = statusFragments[0]
+    currentRA = statusFragments[5]
+    currentDEC = statusFragments[6]
+    motionStates = statusFragments[1]
+    slewingStates = ("SlewToTarget", "FreeSlew", "ManualSlew")
+    telescopeStates = {
+        "status": status,
+        "isTracking": motionStates[2] == 'T',
+        "isSlewing": status in slewingStates,
+        "rightAscension": currentRA,
+        "declination": currentDEC
+    }
+    logging.error(telescopeStates)
+    try:
+        if request.method == 'POST':
+            actionData = request.get_json()
+            if 'action' not in actionData:
+                raise Exception("no action provided")
+            if actionData['action'] not in ['setHome', 'toggleParking', 'togglePrecision', 'toggleTracking', 'reset']:
+                raise Exception("invalid action provided")
+            if actionData["action"] == 'setHome':
+                commandResultString = meadeProcessor.sendCommands(":hS#")
+            elif actionData["action"] == 'toggleParking':
+                if telescopeStates["status"] != 'Parked':
+                    commandResultString = meadeProcessor.sendCommands(":hP#")
+                else:
+                    commandResultString = meadeProcessor.sendCommands(":hU#")
+            elif actionData['action'] == 'toggleTracking':
+                if telescopeStates["isTracking"]:
+                    commandResultString = meadeProcessor.sendCommands(":MT0#")
+                else:
+                    commandResultString = meadeProcessor.sendCommands(":MT1#")
+            elif actionData['action'] == 'togglePrecision':
+                commandResultString = meadeProcessor.sendCommands(":P#")
+            elif actionData['action'] == 'reset':
+                commandResultString = meadeProcessor.sendCommands(":I#")
+            commandSuccessStates = map(lambda x: bool(x), re.findall(r'\d', commandResultString))
+            if False not in commandSuccessStates:
+                commandResult = {
+                    "commandSuccess": False not in commandSuccessStates
+                }
+                return response.getResponse(type="success", result=commandResult)
+    except Exception as e:
+        logging.error(e)
+        return response.getResponse(type="error", description=str(e))
