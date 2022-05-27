@@ -31,7 +31,6 @@ class HandleDates():
         if "utcTimestamp" in requestBody and "utcOffset" in requestBody:
             self.__dateObject = datetime.utcfromtimestamp(int(requestBody["utcTimestamp"]))
             self.__utcOffset = requestBody["utcOffset"][0:1] + str(abs(int(requestBody["utcOffset"]))/60).zfill(2)
-            print(self.__utcOffset)
         else:
             raise Exception("invalid request Body for Datetime Conversion")
         if dateFormat == "24":
