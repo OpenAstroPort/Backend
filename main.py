@@ -46,7 +46,7 @@ def telescopeInfo():
     response = helpers.ApiResponse()
     try:
         infoString = meadeProcessor.sendCommands(":GVP#:GVN#:Gt#:Gg#:GC#:GL#")
-        infoFragments = list(filter(lambda x: x != "", infoString.split("#")))
+        infoFragments = list(infoString[:-1].split("#"))
         return response.getResponse(type="success", result=infoFragments)
     except Exception as e:
         logging.error(e)
@@ -78,16 +78,21 @@ def telescopeStatus():
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
 
-@app.route("/telescope/position", methods=['GET', 'POST'])
+@app.route("/telescope/position", methods=['GET'])
 def telescopePosition():
     response = helpers.ApiResponse()
+    # TODO: either restructure or remove optional GET as this is the only method implemented
     try:
         if request.method == 'GET':
-            # TODO: implement position GET
-            return response.getResponse(type="success", result="Hello World")
-        elif request.method == 'POST':
-            # TODO: implement position POST
-            return response.getResponse(type="success", result="Hello World")
+            positionString = meadeProcessor.sendCommands(":GR#:GD#")
+            positionFragments = list(positionString[:-1].split("#"))
+            positionResult = {
+                'rightAscension': positionFragments[0],
+                'declination': positionFragments[1]
+            }
+            return response.getResponse(type="success", result=positionResult)
     except Exception as e:
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
+
+    
