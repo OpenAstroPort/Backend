@@ -17,10 +17,10 @@ def home():
 
 @app.route('/devices', methods=['GET', 'POST'])
 def devices():
+    response = helpers.ApiResponse()
     # if HTTP Method is GET try to retrieve a list of all available serial ports and return them as json array
     if request.method == 'GET':
         logging.info("requested available com devices")
-        response = helpers.ApiResponse()
         try:
             # Try to get available Serial Ports as List
             availablePortsList = meadeProcessor.listSerial()
@@ -30,7 +30,6 @@ def devices():
             return response.getResponse(type="error", description=str(e))
     if request.method == 'POST':
         logging.info("set com device and baudrate")
-        response = helpers.ApiResponse()
         try:
             data = request.get_json(force=True)
             if data['comDevice'] == None:
@@ -131,8 +130,8 @@ def telescopeDatetime():
 
 @app.route("/telescope/geolocation", methods=['GET', 'POST'])
 def telescopeGeolocation():
+    response = helpers.ApiResponse()
     try:
-        response = helpers.ApiResponse()
         if request.method == 'GET':
             locationString = meadeProcessor.sendCommands(":Gt#:Gg#")
             locationList = locationString[:-1].split("#")
@@ -156,3 +155,45 @@ def telescopeGeolocation():
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
 
+@app.route("/telescope/move", methods=["POST"])
+def telescopeMovement():
+    response = helpers.ApiResponse()
+    try:
+        if request.method == 'POST':
+            moveData = request.get_json()
+            if 'direction' not in moveData:
+                raise Exception("no direction provided")
+            if moveData['direction'] not in ['n', 'w', 's', 'e']:
+                raise Exception("invalid direction given")
+            commandResultString = meadeProcessor.sendCommands(":M%s#" % moveData["direction"])
+            commandSuccessStates = map(lambda x: bool(x), re.findall(r'\d', commandResultString))
+            if False not in commandSuccessStates:
+                commandResult = {
+                    "commandSuccess": False not in commandSuccessStates
+                }
+                return response.getResponse(type="success", result=commandResult)
+    except Exception as e:
+        logging.error(e)
+        return response.getResponse(type="error", description=str(e))
+
+
+@app.route("/telescope/move/quit", methods=["POST"])
+def telescopeStopMovement():
+    response = helpers.ApiResponse()
+    try:
+        if request.method == 'POST':
+            moveData = request.get_json()
+            if 'direction' not in moveData:
+                raise Exception("no direction provided")
+            if moveData['direction'] not in ['n', 'w', 's', 'e', 'a']:
+                raise Exception("invalid direction given")
+            commandResultString = meadeProcessor.sendCommands(":Q%s#" % moveData["direction"])
+            commandSuccessStates = map(lambda x: bool(x), re.findall(r'\d', commandResultString))
+            if False not in commandSuccessStates:
+                commandResult = {
+                    "commandSuccess": False not in commandSuccessStates
+                }
+                return response.getResponse(type="success", result=commandResult)
+    except Exception as e:
+        logging.error(e)
+        return response.getResponse(type="error", description=str(e))
