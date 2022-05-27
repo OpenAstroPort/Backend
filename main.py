@@ -128,3 +128,31 @@ def telescopeDatetime():
     except Exception as e:
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
+
+@app.route("/telescope/geolocation", methods=['GET', 'POST'])
+def telescopeGeolocation():
+    try:
+        response = helpers.ApiResponse()
+        if request.method == 'GET':
+            locationString = meadeProcessor.sendCommands(":Gt#:Gg#")
+            locationList = locationString[:-1].split("#")
+            locationDict =  {
+                "lat": locationList[0],
+                "lng": locationList[1],
+            }
+            return response.getResponse(type="success", result=locationDict)
+        if request.method == 'POST':
+            locationDict = request.get_json()
+            commandResultString = meadeProcessor.sendCommands("St%s#:Sg%s#" % (locationDict["lat"], locationDict["lng"]))
+            commandSuccessStates = map(lambda x: bool(x), re.findall(r'\d', commandResultString))
+
+            if False not in commandSuccessStates:
+                commandResult = {
+                    "commandSuccess": False not in commandSuccessStates
+                }
+                return response.getResponse(type="success", result=commandResult)
+
+    except Exception as e:
+        logging.error(e)
+        return response.getResponse(type="error", description=str(e))
+
