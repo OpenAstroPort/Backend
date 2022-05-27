@@ -248,3 +248,56 @@ def telescopeActions():
     except Exception as e:
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
+
+@app.route("/telescope/slew", methods=["POST"])
+def telescopeSlews():
+    response = helpers.ApiResponse()
+    try:
+        if request.method == 'POST':
+            slewData = request.get_json()
+            if 'to' not in slewData:
+                raise Exception("no to provided")
+            if slewData['to'] not in ['home', 'target']:
+                raise Exception("invalid to provided")
+            if slewData['to'] == 'home':
+                commandResultString = meadeProcessor.sendCommands(":hF#")
+            elif slewData['to'] == 'target':
+                commandResultString = meadeProcessor.sendCommands(":MT#")
+            commandSuccessStates = map(lambda x: bool(x), re.findall(r'\d', commandResultString))
+            if False not in commandSuccessStates:
+                commandResult = {
+                    "commandSuccess": False not in commandSuccessStates
+                }
+                return response.getResponse(type="success", result=commandResult)
+    except Exception as e:
+        logging.error(e)
+        return response.getResponse(type="error", description=str(e))
+
+@app.route("/telescope/slew/speed", methods=['POST'])
+def telescopeSlewSpeed():
+    response = helpers.ApiResponse()
+    try:
+        if request.method == 'POST':
+            speedData = request.get_json()
+            if 'speed' not in speedData:
+                raise Exception("no speed was given")
+            speed = int(speedData['speed'])
+            if speed > 4 and speed < 0:
+                raise Exception("invalid speed was given expected values from 1-4")
+            if speedData['speed'] == 1:
+                commandResultString = meadeProcessor.sendCommands(":RG#") # Slowest
+            elif speedData['speed'] == 2:
+                commandResultString = meadeProcessor.sendCommands(":RC#")
+            elif speedData['speed'] == 3:
+                commandResultString = meadeProcessor.sendCommands(":RM#")
+            elif speedData['speed'] == 4:
+                commandResultString = meadeProcessor.sendCommands(":RS#")
+            commandSuccessStates = map(lambda x: bool(x), re.findall(r'\d', commandResultString))
+            if False not in commandSuccessStates:
+                commandResult = {
+                    "commandSuccess": False not in commandSuccessStates
+                }
+                return response.getResponse(type="success", result=commandResult)
+    except Exception as e:
+        logging.error(e)
+        return response.getResponse(type="error", description=str(e))
