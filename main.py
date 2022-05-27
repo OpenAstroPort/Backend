@@ -3,8 +3,10 @@ from flask import Flask
 from flask import request
 import logging
 import helpers
+import re
 from meade_processor import MeadeProcessor
 
+dateHelper = helpers.HandleDates()
 meadeProcessor = MeadeProcessor()
 
 app = Flask(__name__)
@@ -95,4 +97,34 @@ def telescopePosition():
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
 
+@app.route("/telescope/datetime", methods=['GET', 'POST'])
+def telescopeDatetime():
+    response = helpers.ApiResponse()
     
+    try:
+        if request.method == 'GET':
+            datetimeString = meadeProcessor.sendCommands(":GC#:GL#:GG#")
+            datetimeFragments = list(datetimeString[:-1].split("#"))
+            datetimeResult = {
+                'currentDate': datetimeFragments[0],
+                'currentTime': datetimeFragments[1],
+                'currentUTCOffset': datetimeFragments[2]
+            }
+            return response.getResponse(type="success", result=datetimeResult)
+        elif request.method == 'POST':
+            requestBody = request.get_json()
+            dateFormat = meadeProcessor.sendCommands(":Gc#")[:-1]
+            cmd = dateHelper.convertDateRequestToOATCommands(requestBody, dateFormat)
+            commandResultString = meadeProcessor.sendCommands(cmd)
+            commandSuccessStates = map(lambda x: bool(x), re.findall(r'\d', commandResultString))
+
+            if False not in commandSuccessStates:
+                commandResult = {
+                    "commandSuccess": False not in commandSuccessStates
+                }
+                return response.getResponse(type="success", result=commandResult)
+            else:
+                return response.getResponse(type="error", description="setting datetime on Telescope has failed")
+    except Exception as e:
+        logging.error(e)
+        return response.getResponse(type="error", description=str(e))
