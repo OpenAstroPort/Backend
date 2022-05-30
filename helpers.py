@@ -32,11 +32,11 @@ class HandleDates():
             self.__dateObject = datetime.utcfromtimestamp(int(requestBody["utcTimestamp"]))
             self.__utcOffset = requestBody["utcOffset"][0:1] + str(abs(int(requestBody["utcOffset"]))/60).zfill(2)
         else:
-            raise Exception("invalid request Body for Datetime Conversion")
+            raise BaseException("invalid request Body for Datetime Conversion")
         if dateFormat == "24":
             cmd = self.__dateObject.strftime(":SC%d/%m/%y#:SL%H:%M:%S#:SG" + self.__utcOffset + "#")
         elif dateFormat == "12":
             cmd = self.__dateObject.strftime(":SC%d/%m/%y#:SL%I:%M:%S#:SG" + self.__utcOffset + "#")
         else:
-            raise Exception("invalid dateFormat accepts 12 or 24")
+            raise BaseException("invalid dateFormat accepts 12 or 24")
         return cmd

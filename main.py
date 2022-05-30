@@ -11,6 +11,9 @@ meadeProcessor = MeadeProcessor()
 
 app = Flask(__name__)
 
+if __name__ == '__main__':
+      app.run(host='0.0.0.0', port=5050)
+
 @app.route('/')
 def home():
     return {'name': 'OATREST', 'version': 'beta-1.0.0'}
@@ -25,7 +28,7 @@ def devices():
             # Try to get available Serial Ports as List
             availablePortsList = meadeProcessor.listSerial()
             return response.getResponse(type="success", result=availablePortsList)
-        except Exception as e:
+        except BaseException as e:
             logging.error(e)
             return response.getResponse(type="error", description=str(e))
     if request.method == 'POST':
@@ -33,12 +36,12 @@ def devices():
         try:
             data = request.get_json(force=True)
             if data['comDevice'] == None:
-                raise Exception("no comDevice selected")
+                raise BaseException("no comDevice selected")
             if data['baudRate'] == None:
-                raise Exception("no baudRate selected")
+                raise BaseException("no baudRate selected")
             meadeProcessor.setupSerial(comDevie=data['comDevice'], baudRate=data['baudRate'])
             return response.getResponse(type="success", result=meadeProcessor.getCurrentSerialConfig())
-        except Exception as e:
+        except BaseException as e:
             logging.error(e)
             return response.getResponse(type="error", description=str(e))
 
@@ -49,7 +52,7 @@ def telescopeInfo():
         infoString = meadeProcessor.sendCommands(":GVP#:GVN#:Gt#:Gg#:GC#:GL#")
         infoFragments = list(infoString[:-1].split("#"))
         return response.getResponse(type="success", result=infoFragments)
-    except Exception as e:
+    except BaseException as e:
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
 
@@ -75,7 +78,7 @@ def telescopeStatus():
             "declination": currentDEC
         }
         return response.getResponse(type="success", result=statusResponse)
-    except Exception as e:
+    except BaseException as e:
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
 
@@ -92,7 +95,7 @@ def telescopePosition():
                 'declination': positionFragments[1]
             }
             return response.getResponse(type="success", result=positionResult)
-    except Exception as e:
+    except BaseException as e:
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
 
@@ -124,7 +127,7 @@ def telescopeDatetime():
                 return response.getResponse(type="success", result=commandResult)
             else:
                 return response.getResponse(type="error", description="setting datetime on Telescope has failed")
-    except Exception as e:
+    except BaseException as e:
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
 
@@ -151,7 +154,7 @@ def telescopeGeolocation():
                 }
                 return response.getResponse(type="success", result=commandResult)
 
-    except Exception as e:
+    except BaseException as e:
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
 
@@ -162,9 +165,9 @@ def telescopeMovement():
         if request.method == 'POST':
             moveData = request.get_json()
             if 'direction' not in moveData:
-                raise Exception("no direction provided")
+                raise BaseException("no direction provided")
             if moveData['direction'] not in ['n', 'w', 's', 'e']:
-                raise Exception("invalid direction given")
+                raise BaseException("invalid direction given")
             commandResultString = meadeProcessor.sendCommands(":M%s#" % moveData["direction"])
             commandSuccessStates = map(lambda x: bool(x), re.findall(r'\d', commandResultString))
             if False not in commandSuccessStates:
@@ -172,7 +175,7 @@ def telescopeMovement():
                     "commandSuccess": False not in commandSuccessStates
                 }
                 return response.getResponse(type="success", result=commandResult)
-    except Exception as e:
+    except BaseException as e:
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
 
@@ -184,9 +187,9 @@ def telescopeStopMovement():
         if request.method == 'POST':
             moveData = request.get_json()
             if 'direction' not in moveData:
-                raise Exception("no direction provided")
+                raise BaseException("no direction provided")
             if moveData['direction'] not in ['n', 'w', 's', 'e', 'a']:
-                raise Exception("invalid direction given")
+                raise BaseException("invalid direction given")
             commandResultString = meadeProcessor.sendCommands(":Q%s#" % moveData["direction"])
             commandSuccessStates = map(lambda x: bool(x), re.findall(r'\d', commandResultString))
             if False not in commandSuccessStates:
@@ -194,7 +197,7 @@ def telescopeStopMovement():
                     "commandSuccess": False not in commandSuccessStates
                 }
                 return response.getResponse(type="success", result=commandResult)
-    except Exception as e:
+    except BaseException as e:
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
 
@@ -215,14 +218,13 @@ def telescopeActions():
         "rightAscension": currentRA,
         "declination": currentDEC
     }
-    logging.error(telescopeStates)
     try:
         if request.method == 'POST':
             actionData = request.get_json()
             if 'action' not in actionData:
-                raise Exception("no action provided")
+                raise BaseException("no action provided")
             if actionData['action'] not in ['setHome', 'toggleParking', 'togglePrecision', 'toggleTracking', 'reset']:
-                raise Exception("invalid action provided")
+                raise BaseException("invalid action provided")
             if actionData["action"] == 'setHome':
                 commandResultString = meadeProcessor.sendCommands(":hS#")
             elif actionData["action"] == 'toggleParking':
@@ -245,7 +247,7 @@ def telescopeActions():
                     "commandSuccess": False not in commandSuccessStates
                 }
                 return response.getResponse(type="success", result=commandResult)
-    except Exception as e:
+    except BaseException as e:
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
 
@@ -256,9 +258,9 @@ def telescopeSlews():
         if request.method == 'POST':
             slewData = request.get_json()
             if 'to' not in slewData:
-                raise Exception("no to provided")
+                raise BaseException("no to provided")
             if slewData['to'] not in ['home', 'target']:
-                raise Exception("invalid to provided")
+                raise BaseException("invalid to provided")
             if slewData['to'] == 'home':
                 commandResultString = meadeProcessor.sendCommands(":hF#")
             elif slewData['to'] == 'target':
@@ -269,7 +271,7 @@ def telescopeSlews():
                     "commandSuccess": False not in commandSuccessStates
                 }
                 return response.getResponse(type="success", result=commandResult)
-    except Exception as e:
+    except BaseException as e:
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
 
@@ -280,10 +282,10 @@ def telescopeSlewSpeed():
         if request.method == 'POST':
             speedData = request.get_json()
             if 'speed' not in speedData:
-                raise Exception("no speed was given")
+                raise BaseException("no speed was given")
             speed = int(speedData['speed'])
             if speed > 4 and speed < 0:
-                raise Exception("invalid speed was given expected values from 1-4")
+                raise BaseException("invalid speed was given expected values from 1-4")
             if speedData['speed'] == 1:
                 commandResultString = meadeProcessor.sendCommands(":RG#") # Slowest
             elif speedData['speed'] == 2:
@@ -298,6 +300,6 @@ def telescopeSlewSpeed():
                     "commandSuccess": False not in commandSuccessStates
                 }
                 return response.getResponse(type="success", result=commandResult)
-    except Exception as e:
+    except BaseException as e:
         logging.error(e)
         return response.getResponse(type="error", description=str(e))

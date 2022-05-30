@@ -1,5 +1,6 @@
 import serial
 from serial.tools import list_ports
+import logging
 
 
 class MeadeProcessor:
@@ -28,14 +29,14 @@ class MeadeProcessor:
             availablePorts = list_ports.comports()
             availablePortsList = list(map(lambda x: x.device, availablePorts))
         except:
-            raise Exception("failed to retrieve serial devices")
+            raise BaseException("failed to retrieve serial devices")
         return availablePortsList
 
     def setupSerial(self, comDevie, baudRate):
         if baudRate not in self.__validBaudRates:
-            raise Exception("invalid baud rate")
+            raise BaseException("invalid baud rate")
         if comDevie not in self.listSerial():
-            raise Exception("selected comDevice is unavailable")
+            raise BaseException("selected comDevice is unavailable")
         self.comDevice = comDevie
         self.baudRate = baudRate
 
@@ -47,12 +48,16 @@ class MeadeProcessor:
 
     def sendCommands(self, commandString):
         if self.comDevice == None:
-            raise Exception("no comDevice selected")
+            raise BaseException("no comDevice selected")
         if self.baudRate == None:
-            raise Exception("no baudRate selected")
+            raise BaseException("no baudRate selected")
+        logging.error("Trying to send commands: %s to ESP" % commandString)
         with serial.Serial(port=self.comDevice, baudrate=self.baudRate, timeout=1) as ser:
+            # Broken ESP Seems to restart every time after serial connection is established. Restart fucks up the first read which is why we add a empty read here:
+            ser.read()
             ser.flush()
             ser.write(commandString.encode('utf-8'))
             ser.flush()
             result = ser.readline()
+            logging.error("received '%s' from command" % result)
             return result.decode('utf-8')
