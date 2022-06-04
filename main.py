@@ -11,18 +11,18 @@ meadeProcessor = MeadeProcessor()
 
 app = Flask(__name__)
 
-if __name__ == '__main__':
-      app.run(host='0.0.0.0', port=5050)
+if __name__ == "__main__":
+      app.run(host="0.0.0.0", port=5050)
 
-@app.route('/')
+@app.route("/")
 def home():
-    return {'name': 'OATREST', 'version': 'beta-1.0.0'}
+    return {"name": "OATREST", "version": "beta-1.0.0"}
 
-@app.route('/devices', methods=['GET', 'POST'])
+@app.route("/devices", methods=["GET", "POST"])
 def devices():
     response = helpers.ApiResponse()
     # if HTTP Method is GET try to retrieve a list of all available serial ports and return them as json array
-    if request.method == 'GET':
+    if request.method == "GET":
         logging.info("requested available com devices")
         try:
             # Try to get available Serial Ports as List
@@ -31,15 +31,15 @@ def devices():
         except BaseException as e:
             logging.error(e)
             return response.getResponse(type="error", description=str(e))
-    if request.method == 'POST':
+    if request.method == "POST":
         logging.info("set com device and baudrate")
         try:
             data = request.get_json(force=True)
-            if data['comDevice'] == None:
+            if data["comDevice"] == None:
                 raise BaseException("no comDevice selected")
-            if data['baudRate'] == None:
+            if data["baudRate"] == None:
                 raise BaseException("no baudRate selected")
-            meadeProcessor.setupSerial(comDevie=data['comDevice'], baudRate=data['baudRate'])
+            meadeProcessor.setupSerial(comDevie=data["comDevice"], baudRate=data["baudRate"])
             return response.getResponse(type="success", result=meadeProcessor.getCurrentSerialConfig())
         except BaseException as e:
             logging.error(e)
@@ -72,7 +72,7 @@ def telescopeStatus():
         slewingStates = ("SlewToTarget", "FreeSlew", "ManualSlew")
         statusResponse = {
             "status": status,
-            "isTracking": motionStates[2] == 'T',
+            "isTracking": motionStates[2] == "T",
             "isSlewing": status in slewingStates,
             "rightAscension": currentRA,
             "declination": currentDEC
@@ -82,60 +82,57 @@ def telescopeStatus():
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
 
-@app.route("/telescope/position", methods=['GET'])
+@app.route("/telescope/position", methods=["GET"])
 def telescopePosition():
     response = helpers.ApiResponse()
     # TODO: either restructure or remove optional GET as this is the only method implemented
     try:
-        if request.method == 'GET':
+        if request.method == "GET":
             positionString = meadeProcessor.sendCommands(":GR#:GD#")
             positionFragments = list(positionString[:-1].split("#"))
             positionResult = {
-                'rightAscension': positionFragments[0],
-                'declination': positionFragments[1]
+                "rightAscension": positionFragments[0],
+                "declination": positionFragments[1]
             }
             return response.getResponse(type="success", result=positionResult)
     except BaseException as e:
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
 
-@app.route("/telescope/datetime", methods=['GET', 'POST'])
+@app.route("/telescope/datetime", methods=["GET", "POST"])
 def telescopeDatetime():
     response = helpers.ApiResponse()
     
     try:
-        if request.method == 'GET':
+        if request.method == "GET":
             datetimeString = meadeProcessor.sendCommands(":GC#:GL#:GG#")
             datetimeFragments = list(datetimeString[:-1].split("#"))
             datetimeResult = {
-                'currentDate': datetimeFragments[0],
-                'currentTime': datetimeFragments[1],
-                'currentUTCOffset': datetimeFragments[2]
+                "currentDate": datetimeFragments[0],
+                "currentTime": datetimeFragments[1],
+                "currentUTCOffset": datetimeFragments[2]
             }
             return response.getResponse(type="success", result=datetimeResult)
-        elif request.method == 'POST':
+        elif request.method == "POST":
             requestBody = request.get_json()
             dateFormat = meadeProcessor.sendCommands(":Gc#")[:-1]
             cmd = dateHelper.convertDateRequestToOATCommands(requestBody, dateFormat)
             commandResultString = meadeProcessor.sendCommands(cmd)
-            commandSuccessStates = map(lambda x: bool(x), re.findall(r'\d', commandResultString))
+            commandSuccessStates = map(lambda x: bool(x), re.findall(r"\d", commandResultString))
 
-            if False not in commandSuccessStates:
-                commandResult = {
-                    "commandSuccess": False not in commandSuccessStates
-                }
-                return response.getResponse(type="success", result=commandResult)
-            else:
+            if False in commandSuccessStates:
                 return response.getResponse(type="error", description="setting datetime on Telescope has failed")
+            else:
+                return response.getResponse(type="success", result="successfully executed %s to set telescope date and time." % cmd)
     except BaseException as e:
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
 
-@app.route("/telescope/geolocation", methods=['GET', 'POST'])
+@app.route("/telescope/geolocation", methods=["GET", "POST"])
 def telescopeGeolocation():
     response = helpers.ApiResponse()
     try:
-        if request.method == 'GET':
+        if request.method == "GET":
             locationString = meadeProcessor.sendCommands(":Gt#:Gg#")
             locationList = locationString[:-1].split("#")
             locationDict =  {
@@ -143,16 +140,16 @@ def telescopeGeolocation():
                 "lng": locationList[1],
             }
             return response.getResponse(type="success", result=locationDict)
-        if request.method == 'POST':
+        if request.method == "POST":
             locationDict = request.get_json()
-            commandResultString = meadeProcessor.sendCommands("St%s#:Sg%s#" % (locationDict["lat"], locationDict["lng"]))
-            commandSuccessStates = map(lambda x: bool(x), re.findall(r'\d', commandResultString))
+            cmd = ":St%s#:Sg%s#" % (locationDict["lat"], locationDict["lng"])
+            commandResultString = meadeProcessor.sendCommands(cmd)
+            commandSuccessStates = map(lambda x: bool(x), re.findall(r"\d", commandResultString))
 
-            if False not in commandSuccessStates:
-                commandResult = {
-                    "commandSuccess": False not in commandSuccessStates
-                }
-                return response.getResponse(type="success", result=commandResult)
+            if False in commandSuccessStates:
+                return response.getResponse(type="error", description="Setting geolocation on Telescope has failed")
+            else:
+                return response.getResponse(type="success", result="successfully executed %s to set telescope geolocation." % cmd)
 
     except BaseException as e:
         logging.error(e)
@@ -162,19 +159,18 @@ def telescopeGeolocation():
 def telescopeMovement():
     response = helpers.ApiResponse()
     try:
-        if request.method == 'POST':
+        if request.method == "POST":
             moveData = request.get_json()
-            if 'direction' not in moveData:
+            if "direction" not in moveData:
                 raise BaseException("no direction provided")
-            if moveData['direction'] not in ['n', 'w', 's', 'e']:
+            if moveData["direction"] not in ["n", "w", "s", "e"]:
                 raise BaseException("invalid direction given")
             commandResultString = meadeProcessor.sendCommands(":M%s#" % moveData["direction"])
-            commandSuccessStates = map(lambda x: bool(x), re.findall(r'\d', commandResultString))
-            if False not in commandSuccessStates:
-                commandResult = {
-                    "commandSuccess": False not in commandSuccessStates
-                }
-                return response.getResponse(type="success", result=commandResult)
+            commandSuccessStates = map(lambda x: bool(x), re.findall(r"\d", commandResultString))
+            if False in commandSuccessStates:
+                return response.getResponse(type="error", description="starting move operation on telescope has failed")
+            else:
+                return response.getResponse(type="success", result="moving telescope into direction %s" % moveData["direction"])
     except BaseException as e:
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
@@ -184,19 +180,18 @@ def telescopeMovement():
 def telescopeStopMovement():
     response = helpers.ApiResponse()
     try:
-        if request.method == 'POST':
+        if request.method == "POST":
             moveData = request.get_json()
-            if 'direction' not in moveData:
+            if "direction" not in moveData:
                 raise BaseException("no direction provided")
-            if moveData['direction'] not in ['n', 'w', 's', 'e', 'a']:
+            if moveData["direction"] not in ["n", "w", "s", "e", "a"]:
                 raise BaseException("invalid direction given")
             commandResultString = meadeProcessor.sendCommands(":Q%s#" % moveData["direction"])
-            commandSuccessStates = map(lambda x: bool(x), re.findall(r'\d', commandResultString))
-            if False not in commandSuccessStates:
-                commandResult = {
-                    "commandSuccess": False not in commandSuccessStates
-                }
-                return response.getResponse(type="success", result=commandResult)
+            commandSuccessStates = map(lambda x: bool(x), re.findall(r"\d", commandResultString))
+            if False in commandSuccessStates:
+                return response.getResponse(type="error", description="stopping move operation on telescope has failed")
+            else:
+                return response.getResponse(type="success", result="stopping movement of telescope into direction %s." % moveData["direction"])
     except BaseException as e:
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
@@ -213,40 +208,39 @@ def telescopeActions():
     slewingStates = ("SlewToTarget", "FreeSlew", "ManualSlew")
     telescopeStates = {
         "status": status,
-        "isTracking": motionStates[2] == 'T',
+        "isTracking": motionStates[2] == "T",
         "isSlewing": status in slewingStates,
         "rightAscension": currentRA,
         "declination": currentDEC
     }
     try:
-        if request.method == 'POST':
+        if request.method == "POST":
             actionData = request.get_json()
-            if 'action' not in actionData:
+            if "action" not in actionData:
                 raise BaseException("no action provided")
-            if actionData['action'] not in ['setHome', 'toggleParking', 'togglePrecision', 'toggleTracking', 'reset']:
+            if actionData["action"] not in ["setHome", "toggleParking", "togglePrecision", "toggleTracking", "reset"]:
                 raise BaseException("invalid action provided")
-            if actionData["action"] == 'setHome':
+            if actionData["action"] == "setHome":
                 commandResultString = meadeProcessor.sendCommands(":hS#")
-            elif actionData["action"] == 'toggleParking':
-                if telescopeStates["status"] != 'Parked':
+            elif actionData["action"] == "toggleParking":
+                if telescopeStates["status"] != "Parked":
                     commandResultString = meadeProcessor.sendCommands(":hP#")
                 else:
                     commandResultString = meadeProcessor.sendCommands(":hU#")
-            elif actionData['action'] == 'toggleTracking':
+            elif actionData["action"] == "toggleTracking":
                 if telescopeStates["isTracking"]:
                     commandResultString = meadeProcessor.sendCommands(":MT0#")
                 else:
                     commandResultString = meadeProcessor.sendCommands(":MT1#")
-            elif actionData['action'] == 'togglePrecision':
+            elif actionData["action"] == "togglePrecision":
                 commandResultString = meadeProcessor.sendCommands(":P#")
-            elif actionData['action'] == 'reset':
+            elif actionData["action"] == "reset":
                 commandResultString = meadeProcessor.sendCommands(":I#")
-            commandSuccessStates = map(lambda x: bool(x), re.findall(r'\d', commandResultString))
-            if False not in commandSuccessStates:
-                commandResult = {
-                    "commandSuccess": False not in commandSuccessStates
-                }
-                return response.getResponse(type="success", result=commandResult)
+            commandSuccessStates = map(lambda x: bool(x), re.findall(r"\d", commandResultString))
+            if False in commandSuccessStates:
+                return response.getResponse(type="error", description="executing action on telescope has failed")
+            else:
+                return response.getResponse(type="success", result="successfully executed action %s on telescope." % actionData["action"])
     except BaseException as e:
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
@@ -255,51 +249,73 @@ def telescopeActions():
 def telescopeSlews():
     response = helpers.ApiResponse()
     try:
-        if request.method == 'POST':
+        if request.method == "POST":
             slewData = request.get_json()
-            if 'to' not in slewData:
+            if "to" not in slewData:
                 raise BaseException("no to provided")
-            if slewData['to'] not in ['home', 'target']:
+            if slewData["to"] not in ["home", "target"]:
                 raise BaseException("invalid to provided")
-            if slewData['to'] == 'home':
+            if slewData["to"] == "home":
                 commandResultString = meadeProcessor.sendCommands(":hF#")
-            elif slewData['to'] == 'target':
+            elif slewData["to"] == "target":
                 commandResultString = meadeProcessor.sendCommands(":MT#")
-            commandSuccessStates = map(lambda x: bool(x), re.findall(r'\d', commandResultString))
-            if False not in commandSuccessStates:
-                commandResult = {
-                    "commandSuccess": False not in commandSuccessStates
-                }
-                return response.getResponse(type="success", result=commandResult)
+            commandSuccessStates = map(lambda x: bool(x), re.findall(r"\d", commandResultString))
+            if False in commandSuccessStates:
+                return response.getResponse(type="error", description="slewing telescope has failed")
+            else:
+                return response.getResponse(type="success", result="slewing telescope to %s." % slewData["to"])
     except BaseException as e:
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
 
-@app.route("/telescope/slew/speed", methods=['POST'])
+@app.route("/telescope/slew/speed", methods=["POST"])
 def telescopeSlewSpeed():
     response = helpers.ApiResponse()
     try:
-        if request.method == 'POST':
+        if request.method == "POST":
             speedData = request.get_json()
-            if 'speed' not in speedData:
+            if "speed" not in speedData:
                 raise BaseException("no speed was given")
-            speed = int(speedData['speed'])
+            speed = int(speedData["speed"])
             if speed > 4 and speed < 0:
                 raise BaseException("invalid speed was given expected values from 1-4")
-            if speedData['speed'] == 1:
+            if speedData["speed"] == 1:
                 commandResultString = meadeProcessor.sendCommands(":RG#") # Slowest
-            elif speedData['speed'] == 2:
+            elif speedData["speed"] == 2:
                 commandResultString = meadeProcessor.sendCommands(":RC#")
-            elif speedData['speed'] == 3:
+            elif speedData["speed"] == 3:
                 commandResultString = meadeProcessor.sendCommands(":RM#")
-            elif speedData['speed'] == 4:
+            elif speedData["speed"] == 4:
                 commandResultString = meadeProcessor.sendCommands(":RS#")
-            commandSuccessStates = map(lambda x: bool(x), re.findall(r'\d', commandResultString))
-            if False not in commandSuccessStates:
-                commandResult = {
-                    "commandSuccess": False not in commandSuccessStates
-                }
-                return response.getResponse(type="success", result=commandResult)
+            commandSuccessStates = map(lambda x: bool(x), re.findall(r"\d", commandResultString))
+            if False in commandSuccessStates:
+                return response.getResponse(type="error", description="setting slew speed on telescope has failed")
+            else:
+                return response.getResponse(type="success", result="setting slew speed to %s." % speed)
+    except BaseException as e:
+        logging.error(e)
+        return response.getResponse(type="error", description=str(e))
+
+@app.route("/target/position", methods=["GET", "POST"])
+def targetPosition():
+    response = helpers.ApiResponse()
+    try:
+        if request.method == "GET":
+            positionString = meadeProcessor.sendCommands(":Gr#:Gd#")
+            positionFragments = list(positionString[:-1].split("#"))
+            positionResult = {
+                "rightAscension": positionFragments[0],
+                "declination": positionFragments[1]
+            }
+            return response.getResponse(type="success", result=positionResult)
+        if request.method == "POST":
+            commandSuccessString = meadeProcessor.sendCommands("")
+            commandSuccessStates = map(lambda x: bool(x), re.findall(r"\d", commandResultString))
+            if False in commandSuccessStates:
+                return response.getResponse(type="error", description="setting slew speed on telescope has failed")
+            else:
+                return response.getResponse(type="success", result="setting slew speed to %s." % speed)
+
     except BaseException as e:
         logging.error(e)
         return response.getResponse(type="error", description=str(e))
