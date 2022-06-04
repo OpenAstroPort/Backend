@@ -309,12 +309,17 @@ def targetPosition():
             }
             return response.getResponse(type="success", result=positionResult)
         if request.method == "POST":
-            commandSuccessString = meadeProcessor.sendCommands("")
+            positionData = request.get_json();
+            if "declination" not in positionData:
+                raise BaseException("no declination provided")
+            if "rightAscension" not in positionData:
+                raise BaseException("no rightAscension provided")
+            commandResultString = meadeProcessor.sendCommands(":Sd%s#:Sr%s#" % (positionData["declination"], positionData["rightAscension"]))
             commandSuccessStates = map(lambda x: bool(x), re.findall(r"\d", commandResultString))
             if False in commandSuccessStates:
-                return response.getResponse(type="error", description="setting slew speed on telescope has failed")
+                return response.getResponse(type="error", description="setting target position on telescope has failed")
             else:
-                return response.getResponse(type="success", result="setting slew speed to %s." % speed)
+                return response.getResponse(type="success", result="setting target position to DEC: %s RA: %s." % (positionData["declination"], positionData["rightAscension"]))
 
     except BaseException as e:
         logging.error(e)
