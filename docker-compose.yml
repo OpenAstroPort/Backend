@@ -5,3 +5,5 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile.backend
+    ports:
+      - "8080:5050"
