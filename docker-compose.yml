@@ -1,6 +1,7 @@
 version: '3'
 
 services:
+  restart: 'always'
   backend:
     build: 
       context: .
