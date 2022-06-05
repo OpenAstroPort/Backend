@@ -3,16 +3,9 @@
 GET http://127.0.0.1:5050/
 Accept: application/json
 
-<> 2022-06-02T175750.200.json
-
 ### Get available COM Devices
 GET http://127.0.0.1:5050/devices
 Accept: application/json
-
-<> 2022-06-04T103659.200.json
-<> 2022-06-02T184218.200.json
-<> 2022-06-02T184054.200.json
-<> 2022-06-02T172615.200.json
 
 ### Select a COM Device
 POST http://localhost:5050/devices
@@ -23,36 +16,17 @@ Content-Type: application/json
   "baudRate": 19200
 }
 
-<> 2022-06-04T104747.200.json
-<> 2022-06-04T104611.200.json
-<> 2022-06-04T103705.200.json
-<> 2022-06-04T103643.200.json
-<> 2022-06-02T184109.200.json
-<> 2022-06-02T180649.200.json
-<> 2022-06-02T180152.200.json
-<> 2022-06-02T175754.200.json
-<> 2022-06-02T174730.200.json
-<> 2022-06-02T172729.200.json
-<> 2022-06-02T172605.200.json
-
 ### Get Telescope Information
 GET http://localhost:5050/telescope/info
 Accept: application/json
-
-<> 2022-06-02T184119.200.json
 
 ### Get Telescope Status
 GET http://localhost:5050/telescope/status
 Accept: application/json
 
-<> 2022-06-02T184913.200.json
-<> 2022-06-02T184321.200.json
-
 ### Get Telescope Position
 GET http://localhost:5050/telescope/position
 Accept: application/json
-
-<> 2022-06-02T184407.200.json
 
 ### Set Telescope Date & Time
 POST http://localhost:5050/telescope/datetime
@@ -63,21 +37,9 @@ Content-Type: application/json
   "utcOffset": "-120"
 }
 
-<> 2022-06-02T184420.200.json
-<> 2022-06-02T180203.200.json
-<> 2022-06-02T175805.200.json
-<> 2022-06-02T174747.200.json
-<> 2022-06-02T172742.200.json
-<> 2022-06-02T172628.200.json
-
 ### Get Telescope Date & Time
 GET http://localhost:5050/telescope/datetime
 Accept: application/json
-
-<> 2022-06-02T184457.200.json
-<> 2022-06-02T172747.200.json
-<> 2022-06-02T172634.200.json
-<> 2022-06-02T172328.200.json
 
 ### Get Telescope Geolocation
 GET http://localhost:5050/telescope/geolocation
@@ -92,10 +54,6 @@ Content-Type: application/json
   "lng": "169*07"
 }
 
-<> 2022-06-02T180436.200.json
-<> 2022-06-02T180142.200.json
-<> 2022-06-02T175917.200.json
-
 ### Test Telescope Movement
 ### Move East
 POST http://localhost:5050/telescope/move
@@ -105,9 +63,6 @@ Content-Type: application/json
   "direction": "e"
 }
 
-<> 2022-06-02T180005.200.json
-<> 2022-06-02T175943.200.json
-
 ### Quit East
 POST http://localhost:5050/telescope/move/quit
 Content-Type: application/json
@@ -115,9 +70,6 @@ Content-Type: application/json
 {
   "direction": "e"
 }
-
-<> 2022-06-02T180105.200.json
-<> 2022-06-02T175954.200.json
 
 ### Move South
 POST http://localhost:5050/telescope/move
@@ -176,8 +128,6 @@ Content-Type: application/json
   "action": "toggleParking"
 }
 
-<> 2022-06-02T180524.200.json
-
 ### toggleTracking
 POST http://localhost:5050/telescope/action
 Content-Type: application/json
@@ -218,11 +168,6 @@ Content-Type: application/json
   "to": "home"
 }
 
-<> 2022-06-02T180743.200.json
-<> 2022-06-02T180700.200.json
-<> 2022-06-02T180615.200.json
-<> 2022-06-02T173108.200.json
-
 ### Set Slew Speed (1-4)
 POST http://localhost:5050/telescope/slew/speed
 Content-Type: application/json
@@ -231,13 +176,9 @@ Content-Type: application/json
   "speed": 1
 }
 
-<> 2022-06-02T180750.200.json
-
 ### Get Target Position
 GET http://localhost:5050/target/position
 Accept: application/json
-
-<> 2022-06-04T103715.200.json
 
 ### Set Target Position
 POST http://localhost:5050/target/position
@@ -247,7 +188,3 @@ Content-Type: application/json
   "declination": "+90*00'00",
   "rightAscension": "22:10:00"
 }
-
-<> 2022-06-04T104754.200.json
-<> 2022-06-04T104742.200.json
-<> 2022-06-04T104617.200.json
