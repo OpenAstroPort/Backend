@@ -1,35 +1,35 @@
 ###
 ### Get API Information
-GET http://127.0.0.1:5050/
+GET http://127.0.0.1:8080/
 Accept: application/json
 
 ### Get available COM Devices
-GET http://127.0.0.1:5050/devices
+GET http://127.0.0.1:8080/devices
 Accept: application/json
 
 ### Select a COM Device
-POST http://localhost:5050/devices
+POST http://localhost:8080/devices
 Content-Type: application/json
 
 {
-  "comDevice": "/dev/cu.usbserial-0001",
+  "comDevice": "/dev/ttyAMA0",
   "baudRate": 19200
 }
 
 ### Get Telescope Information
-GET http://localhost:5050/telescope/info
+GET http://localhost:8080/telescope/info
 Accept: application/json
 
 ### Get Telescope Status
-GET http://localhost:5050/telescope/status
+GET http://localhost:8080/telescope/status
 Accept: application/json
 
 ### Get Telescope Position
-GET http://localhost:5050/telescope/position
+GET http://localhost:8080/telescope/position
 Accept: application/json
 
 ### Set Telescope Date & Time
-POST http://localhost:5050/telescope/datetime
+POST http://localhost:8080/telescope/datetime
 Content-Type: application/json
 
 {
@@ -38,15 +38,15 @@ Content-Type: application/json
 }
 
 ### Get Telescope Date & Time
-GET http://localhost:5050/telescope/datetime
+GET http://localhost:8080/telescope/datetime
 Accept: application/json
 
 ### Get Telescope Geolocation
-GET http://localhost:5050/telescope/geolocation
+GET http://localhost:8080/telescope/geolocation
 Accept: application/json
 
 ### Set Telescope Geolocation
-POST http://localhost:5050/telescope/geolocation
+POST http://localhost:8080/telescope/geolocation
 Content-Type: application/json
 
 {
@@ -56,7 +56,7 @@ Content-Type: application/json
 
 ### Test Telescope Movement
 ### Move East
-POST http://localhost:5050/telescope/move
+POST http://localhost:8080/telescope/move
 Content-Type: application/json
 
 {
@@ -64,7 +64,7 @@ Content-Type: application/json
 }
 
 ### Quit East
-POST http://localhost:5050/telescope/move/quit
+POST http://localhost:8080/telescope/move/quit
 Content-Type: application/json
 
 {
@@ -72,7 +72,7 @@ Content-Type: application/json
 }
 
 ### Move South
-POST http://localhost:5050/telescope/move
+POST http://localhost:8080/telescope/move
 Content-Type: application/json
 
 {
@@ -80,7 +80,7 @@ Content-Type: application/json
 }
 
 ### Quit South
-POST http://localhost:5050/telescope/move/quit
+POST http://localhost:8080/telescope/move/quit
 Content-Type: application/json
 
 {
@@ -88,7 +88,7 @@ Content-Type: application/json
 }
 
 ### Move West
-POST http://localhost:5050/telescope/move
+POST http://localhost:8080/telescope/move
 Content-Type: application/json
 
 {
@@ -96,7 +96,7 @@ Content-Type: application/json
 }
 
 ### Quit West
-POST http://localhost:5050/telescope/move/quit
+POST http://localhost:8080/telescope/move/quit
 Content-Type: application/json
 
 {
@@ -104,7 +104,7 @@ Content-Type: application/json
 }
 
 ### Move Noth
-POST http://localhost:5050/telescope/move
+POST http://localhost:8080/telescope/move
 Content-Type: application/json
 
 {
@@ -112,7 +112,7 @@ Content-Type: application/json
 }
 
 ### Quit North
-POST http://localhost:5050/telescope/move/quit
+POST http://localhost:8080/telescope/move/quit
 Content-Type: application/json
 
 {
@@ -121,7 +121,7 @@ Content-Type: application/json
 
 ### Do all Actions
 ### toggleParking
-POST http://localhost:5050/telescope/action
+POST http://localhost:8080/telescope/action
 Content-Type: application/json
 
 {
@@ -129,7 +129,7 @@ Content-Type: application/json
 }
 
 ### toggleTracking
-POST http://localhost:5050/telescope/action
+POST http://localhost:8080/telescope/action
 Content-Type: application/json
 
 {
@@ -137,7 +137,7 @@ Content-Type: application/json
 }
 
 ### setHome
-POST http://localhost:5050/telescope/action
+POST http://localhost:8080/telescope/action
 Content-Type: application/json
 
 {
@@ -145,7 +145,7 @@ Content-Type: application/json
 }
 
 ### Toggle Precision
-POST http://localhost:5050/telescope/action
+POST http://localhost:8080/telescope/action
 Content-Type: application/json
 
 {
@@ -153,7 +153,7 @@ Content-Type: application/json
 }
 
 ### Reset
-POST http://localhost:5050/telescope/action
+POST http://localhost:8080/telescope/action
 Content-Type: application/json
 
 {
@@ -161,7 +161,7 @@ Content-Type: application/json
 }
 
 ### Slew To (home, target)
-POST http://localhost:5050/telescope/slew
+POST http://localhost:8080/telescope/slew
 Content-Type: application/json
 
 {
@@ -169,7 +169,7 @@ Content-Type: application/json
 }
 
 ### Set Slew Speed (1-4)
-POST http://localhost:5050/telescope/slew/speed
+POST http://localhost:8080/telescope/slew/speed
 Content-Type: application/json
 
 {
@@ -177,11 +177,11 @@ Content-Type: application/json
 }
 
 ### Get Target Position
-GET http://localhost:5050/target/position
+GET http://localhost:8080/target/position
 Accept: application/json
 
 ### Set Target Position
-POST http://localhost:5050/target/position
+POST http://localhost:8080/target/position
 Content-Type: application/json
 
 {
