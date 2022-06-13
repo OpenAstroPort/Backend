@@ -1,6 +1,6 @@
 #!/bin/python3
-from flask import Flask
-from flask import request
+from flask import Flask, request
+from flask_cors import CORS
 import logging
 import helpers
 import re
@@ -10,6 +10,7 @@ dateHelper = helpers.HandleDates()
 meadeProcessor = MeadeProcessor()
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route("/")
 def home():
