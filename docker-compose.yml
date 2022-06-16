@@ -8,5 +8,5 @@ services:
       dockerfile: Dockerfile.backend
     ports:
       - "8080:5050"
-    volumes:
-      - /dev:/dev
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0
