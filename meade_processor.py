@@ -7,6 +7,7 @@ class MeadeProcessor:
     def __init__(self):
         self.comDevice = None
         self.baudRate = None
+        self.serialConnection = None
         self.__validBaudRates = [
             300,
             1200,
@@ -23,6 +24,28 @@ class MeadeProcessor:
             500000,
             1000000
         ]
+
+    def connectSerial(self):
+        try:
+            if not self.baudRate:
+                raise BaseException("no baudrate specified please setup serial device first")
+            if not self.comDevice:
+                raise BaseException("no comDevice specified please setup serial device first")
+            self.serialConnection = serial.Serial(port=self.comDevice, baudrate=self.baudRate, timeout=1)
+            self.serialConnection.flush()
+            self.serialConnection.read()
+            return True
+        except:
+            raise BaseException("issue opening serial connection")
+
+    def disconnectSerial(self):
+        try:
+            if not self.serialConnection:
+                raise BaseException("no serial connection opened cant close it")
+            self.serialConnection.close()
+            return True
+        except:
+            raise BaseException("issue disconnecting serial device")
 
     def listSerial(self):
         try:
@@ -51,13 +74,8 @@ class MeadeProcessor:
             raise BaseException("no comDevice selected")
         if self.baudRate == None:
             raise BaseException("no baudRate selected")
-        logging.error("Trying to send commands: %s to ESP" % commandString)
-        with serial.Serial(port=self.comDevice, baudrate=self.baudRate, timeout=1) as ser:
-            # Broken ESP Seems to restart every time after serial connection is established. Restart fucks up the first read which is why we add a empty read here:
-            ser.read()
-            ser.flush()
-            ser.write(commandString.encode('utf-8'))
-            ser.flush()
-            result = ser.readline()
-            logging.error("received '%s' from command" % result)
-            return result.decode('utf-8')
+        if self.serialConnection == None:
+            raise BaseException("not connected to a serial port")
+        self.serialConnection.write(commandString.encode('utf-8'))
+        result = self.serialConnection.readline()
+        return result.decode('utf-8')

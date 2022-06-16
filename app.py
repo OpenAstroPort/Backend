@@ -43,6 +43,23 @@ def devices():
             logging.error(e)
             return response.getResponse(type="error", description=str(e))
 
+@app.route("/devices/action", methods=["POST"])
+def deviceAction():
+    response = helpers.ApiResponse()
+    if request.method == "POST":
+        try:
+            data = request.get_json(force=True)
+            if data["action"] == None:
+                raise BaseException("no action defined")
+            if data["action"] == 'connect':
+                meadeProcessor.connectSerial()
+            elif data["action"] == 'disconnect':
+                meadeProcessor.disconnectSerial()
+            return response.getResponse(type="success", result="sucessuflly %sed serial Device" % data["action"])
+        except BaseException as e:
+            logging.error(e)
+            return response.getResponse(type="error", description=str(e))
+
 @app.route("/telescope/info")
 def telescopeInfo():
     response = helpers.ApiResponse()
