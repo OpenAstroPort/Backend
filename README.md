@@ -1,4 +1,4 @@
-# backend
+# Backend
 This application is mapping the Meade Firmware Commands used by the OpenAstroTracker-Desktop Application to a REST API so it is possible to build a WebFrontend that has the same functionality.
 ## Installation
 On Raspberry Pi [Astroberry](https://www.astroberry.io):
@@ -15,7 +15,7 @@ sudo reboot
 ```
 2. **Clone the Repo**:
 ``` bash
-git clone https://github.com/OpenAstroPort/backend
+git clone https://github.com/OpenAstroPort/Backend
 cd backend
 ```
 3. **Build and Run the Backend Application**:
