@@ -7,9 +7,9 @@ On Raspberry Pi [Astroberry](https://www.astroberry.io):
 # First update the system
 sudo apt update && sudo apt upgrade
 # Install Docker and Docker-Compose 
-sudo apt install docker.io docker-compose
+sudo apt install docker docker-compose
 # Run Docker on System Startup
-sudo systemctl enable docker.io
+sudo systemctl enable docker
 # Reboot to make changes effective
 sudo reboot
 ```
