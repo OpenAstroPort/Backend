@@ -24,7 +24,7 @@ docker-compose build
 docker-compose up -d
 ```
 
-#### Done ... You have installed the &lt;insert name&gt; backend
+#### Done ... You have installed the OpenAtroPort backend
 
 ## Updating the Application
 ``` bash
