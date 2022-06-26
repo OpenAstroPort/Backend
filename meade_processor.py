@@ -1,7 +1,5 @@
 import serial
 from serial.tools import list_ports
-import logging
-
 
 class MeadeProcessor:
     def __init__(self):
