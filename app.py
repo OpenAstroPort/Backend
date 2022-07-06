@@ -273,7 +273,7 @@ def telescopeSlews():
             if slewData["to"] == "home":
                 commandResultString = meadeProcessor.sendCommands(":hF#")
             elif slewData["to"] == "target":
-                commandResultString = meadeProcessor.sendCommands(":MT#")
+                commandResultString = meadeProcessor.sendCommands(":MS#")
             commandSuccessStates = map(lambda x: bool(x), re.findall(r"\d", commandResultString))
             if False in commandSuccessStates:
                 return response.getResponse(type="error", description="slewing telescope has failed")
