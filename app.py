@@ -236,7 +236,7 @@ def telescopeActions():
             if actionData["action"] not in ["setHome", "toggleParking", "togglePrecision", "toggleTracking", "reset"]:
                 raise BaseException("invalid action provided")
             if actionData["action"] == "setHome":
-                commandResultString = meadeProcessor.sendCommands(":hS#")
+                commandResultString = meadeProcessor.sendCommands(":SHP#")
             elif actionData["action"] == "toggleParking":
                 if telescopeStates["status"] != "Parked":
                     commandResultString = meadeProcessor.sendCommands(":hP#")
