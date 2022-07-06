@@ -294,13 +294,13 @@ def telescopeSlewSpeed():
             speed = int(speedData["speed"])
             if speed > 4 and speed < 0:
                 raise BaseException("invalid speed was given expected values from 1-4")
-            if speedData["speed"] == 1:
+            if speed == 1:
                 commandResultString = meadeProcessor.sendCommands(":RG#") # Slowest
-            elif speedData["speed"] == 2:
+            elif speed == 2:
                 commandResultString = meadeProcessor.sendCommands(":RC#")
-            elif speedData["speed"] == 3:
+            elif speed == 3:
                 commandResultString = meadeProcessor.sendCommands(":RM#")
-            elif speedData["speed"] == 4:
+            elif speed == 4:
                 commandResultString = meadeProcessor.sendCommands(":RS#")
             commandSuccessStates = map(lambda x: bool(x), re.findall(r"\d", commandResultString))
             if False in commandSuccessStates:
