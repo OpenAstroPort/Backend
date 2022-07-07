@@ -77,6 +77,6 @@ class MeadeProcessor:
             raise BaseException("not connected to a serial port")
         self.serialConnection.flushInput()
         self.serialConnection.flushOutput()
-        self.serialConnection.write(commandString.encode('utf-8') + "\r\n")
+        self.serialConnection.write((commandString + "\r\n").encode('utf-8'))
         result = self.serialConnection.readline()
         return result.decode('utf-8')
