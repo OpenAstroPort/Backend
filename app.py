@@ -224,6 +224,8 @@ def telescopeActions():
     currentRA = statusFragments[5]
     currentDEC = statusFragments[6]
     motionStates = statusFragments[1]
+    logging.error("motion States")
+    logging.error(motionStates)
     slewingStates = ("SlewToTarget", "FreeSlew", "ManualSlew")
     telescopeStates = {
         "status": status,
