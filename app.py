@@ -219,15 +219,11 @@ def telescopeStopMovement():
 def telescopeActions():
     response = helpers.ApiResponse()
     statusString = meadeProcessor.sendCommands(":GX#")
-    logging.error("statusString:")
-    logging.error(statusString)
     statusFragments = statusString[:-1].split(",")
     status = statusFragments[0]
     currentRA = statusFragments[5]
     currentDEC = statusFragments[6]
     motionStates = statusFragments[1]
-    logging.error("motion States")
-    logging.error(motionStates)
     slewingStates = ("SlewToTarget", "FreeSlew", "ManualSlew")
     telescopeStates = {
         "status": status,
