@@ -75,10 +75,6 @@ class MeadeProcessor:
             raise BaseException("no baudRate selected")
         if self.serialConnection == None:
             raise BaseException("not connected to a serial port")
-        self.serialConnection.flushInput()
-        self.serialConnection.flushOutput()
-        logging.error("#### Writing Command %s" % commandString)
-        self.serialConnection.write((commandString + "\r\n").encode('utf-8'))
+        self.serialConnection.write(commandString).encode('utf-8')
         result = self.serialConnection.readline()
-        logging.error("#### Got response: %s" % result.decode('utf-8'))
         return result.decode('utf-8')
