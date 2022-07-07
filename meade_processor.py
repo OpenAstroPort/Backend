@@ -77,6 +77,7 @@ class MeadeProcessor:
             raise BaseException("not connected to a serial port")
         logging.info("## Sending Command to OAT:")
         logging.info(commandString.encode('utf-8'))
+        self.serialConnection.flush()
         self.serialConnection.write(commandString.encode('utf-8'))
         result = self.serialConnection.readline()
         logging.info("## Received Result from OAT:")
