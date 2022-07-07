@@ -219,6 +219,8 @@ def telescopeStopMovement():
 def telescopeActions():
     response = helpers.ApiResponse()
     statusString = meadeProcessor.sendCommands(":GX#")
+    logging.error("statusString:")
+    logging.error(statusString)
     statusFragments = statusString[:-1].split(",")
     status = statusFragments[0]
     currentRA = statusFragments[5]
