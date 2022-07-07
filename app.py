@@ -77,6 +77,8 @@ def telescopeStatus():
     try:
         statusString = meadeProcessor.sendCommands(":GX#")
         statusFragments = statusString[:-1].split(",")
+        logging.error("Status Fragments:")
+        logging.error(statusFragments)
         status = statusFragments[0]
         #stepperRA = statusFragments[2]
         #stepperDEC = statusFragments[3]
@@ -84,6 +86,8 @@ def telescopeStatus():
         currentRA = statusFragments[5]
         currentDEC = statusFragments[6]
         motionStates = statusFragments[1]
+        logging.error("Motion States:")
+        logging.error(motionStates)
         slewingStates = ("SlewToTarget", "FreeSlew", "ManualSlew")
         statusResponse = {
             "status": status,
