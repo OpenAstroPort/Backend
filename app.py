@@ -104,7 +104,6 @@ def telescopeStatus():
 @app.route("/telescope/position", methods=["GET"])
 def telescopePosition():
     response = helpers.ApiResponse()
-    # TODO: either restructure or remove optional GET as this is the only method implemented
     try:
         if request.method == "GET":
             positionString = meadeProcessor.sendCommands(":GR#:GD#")
@@ -218,36 +217,20 @@ def telescopeStopMovement():
 @app.route("/telescope/action", methods=["POST"])
 def telescopeActions():
     response = helpers.ApiResponse()
-    statusString = meadeProcessor.sendCommands(":GX#")
-    statusFragments = statusString[:-1].split(",")
-    status = statusFragments[0]
-    currentRA = statusFragments[5]
-    currentDEC = statusFragments[6]
-    motionStates = statusFragments[1]
-    slewingStates = ("SlewToTarget", "FreeSlew", "ManualSlew")
-    telescopeStates = {
-        "status": status,
-        "isTracking": motionStates[2] == "T",
-        "isSlewing": status in slewingStates,
-        "rightAscension": currentRA,
-        "declination": currentDEC
-    }
     try:
         if request.method == "POST":
             actionData = request.get_json()
             if "action" not in actionData:
                 raise BaseException("no action provided")
-            if actionData["action"] not in ["setHome", "toggleParking", "togglePrecision", "toggleTracking", "reset"]:
+            if actionData["action"] not in ["setHome", "setParking", "togglePrecision", "setTracking", "reset"]:
                 raise BaseException("invalid action provided")
+
             if actionData["action"] == "setHome":
                 commandResultString = meadeProcessor.sendCommands(":SHP#")
-            elif actionData["action"] == "toggleParking":
-                if telescopeStates["status"] != "Parked":
-                    commandResultString = meadeProcessor.sendCommands(":hP#")
-                else:
-                    commandResultString = meadeProcessor.sendCommands(":hU#")
-            elif actionData["action"] == "toggleTracking":
-                if telescopeStates["isTracking"]:
+            elif actionData["action"] == "setParking":
+                commandResultString = meadeProcessor.sendCommands(":hP#")
+            elif actionData["action"] == "setTracking":
+                if actionData["value"] == False:
                     commandResultString = meadeProcessor.sendCommands(":MT0#")
                 else:
                     commandResultString = meadeProcessor.sendCommands(":MT1#")
