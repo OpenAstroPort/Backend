@@ -1,5 +1,6 @@
 import serial
 import logging
+import time
 from serial.tools import list_ports
 
 class MeadeProcessor:
@@ -7,22 +8,6 @@ class MeadeProcessor:
         self.comDevice = None
         self.baudRate = None
         self.serialConnection = None
-        self.__validBaudRates = [
-            300,
-            1200,
-            2400,
-            4800,
-            9600,
-            19200,
-            38400,
-            57600,
-            74880,
-            115200,
-            230400,
-            250000,
-            500000,
-            1000000
-        ]
 
     def connectSerial(self):
         try:
@@ -55,7 +40,7 @@ class MeadeProcessor:
         return availablePortsList
 
     def setupSerial(self, comDevie, baudRate):
-        if baudRate not in self.__validBaudRates:
+        if baudRate not in serial.BAUDRATES:
             raise BaseException("invalid baud rate")
         if comDevie not in self.listSerial():
             raise BaseException("selected comDevice is unavailable")
@@ -75,6 +60,8 @@ class MeadeProcessor:
             raise BaseException("no baudRate selected")
         if self.serialConnection == None:
             raise BaseException("not connected to a serial port")
+        while self.serialConnection.in_waiting > 0 and self.serialConnection.out_waiting > 0:
+            time.sleep(0.1)
         self.serialConnection.write(commandString.encode('utf-8'))
         result = self.serialConnection.readline()
         return result.decode('utf-8')
